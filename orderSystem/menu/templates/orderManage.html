@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>点单管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        :root {
+            --primary-color: #ff6b35;
+            --secondary-color: #f7941e;
+            --accent-color: #2ecc71;
+            --dark-color: #333;
+            --light-color: #f9f9f9;
+            --gray-color: #e0e0e0;
+        }
+        
+        body {
+            background-color: #fff;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo h1 {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-left: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 28px;
+            color: var(--primary-color);
+        }
+        
+        .cart-icon {
+            position: relative;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--dark-color);
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        /* 横幅样式 */
+        .banner {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .banner-content h2 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .banner-content p {
+            font-size: 18px;
+        }
+        
+        /* 菜单分类 */
+        .categories {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--gray-color);
+        }
+        
+        .category {
+            padding: 8px 20px;
+            margin-right: 10px;
+            background-color: var(--gray-color);
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+        
+        .category.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* 菜单项 */
+        .menu-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+            
+        }
+        
+        .menu-item {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .item-image {
+            height: 180px;
+            width: 100%;
+            background-color: #ddd;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .item-content {
+            padding: 15px;
+        }
+        
+        .item-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .item-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            height: 40px;
+            overflow: hidden;
+        }
+        
+        .item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .item-price {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 18px;
+        }
+        
+        .add-to-cart {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .add-to-cart:hover {
+            background-color: #e55a2b;
+        }
+        
+        /* 购物车侧边栏 */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 380px;
+            height: 100vh;
+            background-color: white;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .cart-sidebar.active {
+            right: 0;
+        }
+        
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-color);
+        }
+        
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--dark-color);
+        }
+        
+        .cart-items {
+            margin-bottom: 20px;
+        }
+        
+        .cart-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            
+        }
+        
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            background-color: #ddd;
+            background-size: cover;
+            background-position: center;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .cart-item-price {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .quantity-btn {
+            width: 25px;
+            height: 25px;
+            background-color: var(--gray-color);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .item-quantity {
+            margin: 0 10px;
+        }
+        
+        .remove-item {
+            margin-left: auto;
+            color: #ff4757;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--gray-color);
+        }
+        
+        .checkout-btn {
+            margin:10px;
+            width: 100%;
+            padding: 12px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .checkout-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .empty-cart {
+            text-align: center;
+            padding: 40px 0;
+            color: #666;
+        }
+        
+        .table-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .table-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .table-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .table-id {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .free {
+            color: #28a745; /* 绿色 */
+        }
+
+        .busy {
+            color: #dc3545; /* 红色 */
+        }
+
+        .order-status {
+            color: #007bff;
+        }
+
+        #deskItems {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .cart-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .banner-content h2 {
+                font-size: 28px;
+            }
+            
+            .banner-content p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🍽️</span>
+                    <h1>桌台管理</h1>
+                </div>
+            </div>
+        </div>
+    </header>
+ 
+
+
+
+    <!-- 横幅 -->
+    <section class="banner">
+        <div class="banner-content">
+            <h2>桌台管理</h2>
+        </div>
+    </section>
+
+    
+        <!-- 菜单项 -->
+        <div class="desk-items" id="deskItems">
+            <!-- 菜单项将通过JavaScript动态生成 -->
+        </div>
+
+</div>
+
+
+
+<script>
+    const deskItemsContainer = document.getElementById('deskItems');
+    
+    async function renderTables(tablesCount) {
+        const promises = [];
+
+        for (let i = 1; i <= tablesCount; i++) {
+            promises.push(
+                fetch(`/api/get_desks_api/${i}/`, {
+                    method: 'GET',
+                    headers: { 'X-CSRFToken': getCSRFToken() }
+                }).then(res => res.json())
+            );
+        }
+
+        const results = await Promise.all(promises);
+
+        // results 是按请求顺序返回的，所以正好是 1,2,3,...
+        deskItemsContainer.innerHTML = "";
+        results.forEach((data, index) => {
+            const table_num = index + 1;
+            const div = document.createElement("div");
+            div.className = "table-card";
+            div.addEventListener("click", () => {
+                window.location.href = `/orderMessage/${table_num}/`;  // 你自己的跳转地址
+            });
+            if (data.status!='') {
+                div.innerHTML = `
+                    <a href = "/orderMessage/${table_num}"></a>
+                    <div class="table-id">桌号：${table_num}</div>
+                    <div class="status ${data.free ? 'free' : 'busy'}">
+                        状态：${data.free ? '空闲' : '使用中'}
+                    </div>
+                    <div class="order-status">订单状态：${data.status}</div>
+                `;
+            } else {
+                div.innerHTML = `
+                    <div class="table-id">桌号：${table_num}</div>
+                    <div class="status free">
+                        状态：空闲
+                    </div>
+                    <div class="order-status">订单状态：无订单</div>
+                `;
+            }
+
+            deskItemsContainer.appendChild(div);
+        });
+    }
+    renderTables(10);
+    /* const tables = 10
+    renderTables(tables);
+    function renderTables(tables) {
+            deskItemsContainer.innerHTML = ""; // 清空旧内容
+            for (let i = 1; i <= tables; i++) {
+                getDeskStatus(i);
+            };
+        }
+
+    function getDeskStatus(table_num) {
+        fetch(`/api/get_desks_api/${table_num}/`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                //alert(data.message);
+                console.log('订单状态:', data);
+                //location.reload(); // 刷新页面以更新状态
+                if (data.status != ''){
+                    const div = document.createElement("div");
+                    div.className = "table-card";
+                    div.innerHTML = `
+                    <div class="table-id">桌号：${table_num}</div>
+                    <div class="status ${data.free ? 'free' : 'busy'}">
+                        状态：${data.free ? '空闲' : '使用中'}
+                    </div>
+                    <div class="order-status">订单状态：${data.status}</div>
+                `;
+                deskItemsContainer.appendChild(div);
+                }else{
+                   const div = document.createElement("div");
+                    div.className = "table-card";
+                    div.innerHTML = `
+                    <div class="table-id">桌号：${table_num}</div>
+                    <div class="status free">
+                        状态：'空闲'
+                    </div>
+                    <div class="order-status">订单状态：无订单</div>
+                `;
+                deskItemsContainer.appendChild(div); 
+                };
+                
+                
+            })
+            .catch(err => console.error('上菜出错:', err));
+    } */
+    
+
+
+
+    function getCSRFToken() {
+            const name = 'csrftoken';
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    return cookie.substring(name.length + 1);
+                }
+            }
+            return '';
+        }
+
+</script>
+</body>
+</html>
+
+
+

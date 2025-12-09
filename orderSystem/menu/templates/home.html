@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>朴素卡片居中排列</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: #f5f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* 卡片容器（居中 + 自动换行 + 卡片间距） */
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 24px; /* 控制卡片之间的距离 */
+      padding: 20px;
+      box-sizing: border-box;
+      max-width: 1200px;
+    }
+
+    /* 卡片本体 */
+    .card-link {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .card {
+      width: 260px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 20px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    }
+
+    .card .title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+    }
+
+    .card .desc {
+      font-size: 14px;
+      color: #555;
+      margin: 0 0 10px 0;
+      line-height: 1.5;
+    }
+
+    .card .footer {
+      font-size: 13px;
+      color: #888;
+      text-align: right;
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card-container">
+    
+
+    <a href="/orderManage" class="card-link" rel="noopener noreferrer">
+      <div class="card">
+        <h3 class="title">后台管理</h3>
+        <p class="desc">这是第二个卡片，展示不同内容。</p>
+        <div class="footer">→ 查看详情</div>
+      </div>
+    </a>
+
+    <a href="/kitchen" class="card-link" rel="noopener noreferrer">
+      <div class="card">
+        <h3 class="title">厨房后台</h3>
+        <p class="desc">朴素风格，简洁明了。</p>
+        <div class="footer">→ 查看详情</div>
+      </div>
+    </a>
+  </div>
+</body>
+</html>
